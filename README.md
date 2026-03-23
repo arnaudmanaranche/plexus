@@ -4,12 +4,14 @@ CLI and a small web UI to inspect **direct dependencies** from a `package.json`:
 
 Requires **Node.js 18+** (uses the built-in `fetch` API).
 
+The npm package is **`plexus-peers`** (the short name `plexus` is already used on the registry by another project).
+
 ## Install
 
 From npm:
 
 ```bash
-npx @arnaudmanaranche/plexus --help
+npx plexus-peers --help
 ```
 
 From a clone of this repo:
@@ -24,9 +26,9 @@ node bin/plexus.js --help
 Run from a project that has `package.json` (and usually `node_modules` after `npm install`):
 
 ```bash
-npx @arnaudmanaranche/plexus                      # Terminal report for the current directory
-npx @arnaudmanaranche/plexus --dir ./my-app       # Another project root
-npx @arnaudmanaranche/plexus -f ./path/to/package.json
+npx plexus-peers                      # Terminal report for the current directory
+npx plexus-peers --dir ./my-app       # Another project root
+npx plexus-peers -f ./path/to/package.json
 ```
 
 | Option | Description |
@@ -41,8 +43,8 @@ npx @arnaudmanaranche/plexus -f ./path/to/package.json
 Examples:
 
 ```bash
-npx @arnaudmanaranche/plexus --html
-npx @arnaudmanaranche/plexus --html --fix --bundlesize --dir ./my-app
+npx plexus-peers --html
+npx plexus-peers --html --fix --bundlesize --dir ./my-app
 ```
 
 ## Web UI (`serve`)
@@ -50,7 +52,7 @@ npx @arnaudmanaranche/plexus --html --fix --bundlesize --dir ./my-app
 Starts a local server with a page to **upload** a `package.json`. The report is generated from the **npm registry** (semver resolution for each direct dependency). There is **no** local `node_modules`, so disk sizes are absent and only dependencies declared in the manifest contribute resolved versions for peers.
 
 ```bash
-npx @arnaudmanaranche/plexus serve
+npx plexus-peers serve
 # http://127.0.0.1:3847  (override with --port)
 ```
 

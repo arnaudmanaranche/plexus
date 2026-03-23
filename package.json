@@ -1,17 +1,14 @@
 {
-  "name": "@arnaudmanaranche/plexus",
+  "name": "plexus-peers",
   "version": "0.2.0",
-  "description": "CLI and mini web UI for peer dependency analysis and BundlePhobia-style size hints",
+  "description": "Plexus — CLI and mini web UI for peer dependency analysis and BundlePhobia-style size hints",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/arnaudmanaranche/plexus.git"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "bin": {
-    "plexus": "bin/plexus.js"
+    "plexus-peers": "bin/plexus.js"
   },
   "main": "lib/engine.js",
   "files": [
@@ -24,7 +21,8 @@
   },
   "scripts": {
     "start": "node bin/plexus.js serve",
-    "plexus": "node bin/plexus.js"
+    "plexus": "node bin/plexus.js",
+    "plexus-peers": "node bin/plexus.js"
   },
   "dependencies": {
     "express": "^4.21.2",
