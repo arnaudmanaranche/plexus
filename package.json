@@ -1,0 +1,26 @@
+{
+  "name": "plexus",
+  "version": "0.1.0",
+  "description": "CLI and mini web UI for peer dependency analysis and BundlePhobia-style size hints",
+  "license": "MIT",
+  "bin": {
+    "plexus": "bin/plexus.js"
+  },
+  "main": "lib/engine.js",
+  "files": [
+    "bin",
+    "lib",
+    "public"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/plexus.js serve",
+    "plexus": "node bin/plexus.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "semver": "^7.7.1"
+  }
+}

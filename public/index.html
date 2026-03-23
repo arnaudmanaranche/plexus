@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plexus — package.json analysis</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2e3248;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --cyan: #22d3ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 32px 24px 48px;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    h1 { font-size: 1.35rem; font-weight: 700; color: var(--cyan); margin: 0 0 8px; }
+    p { color: var(--muted); margin: 0 0 20px; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    label.file {
+      display: block;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      color: var(--muted);
+      transition: border-color .15s, color .15s;
+    }
+    label.file:hover { border-color: var(--cyan); color: var(--text); }
+    input[type="file"] { display: none; }
+    .opts { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--muted); font-size: 14px; }
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #0e7490;
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:hover { background: #0891b2; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .err {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #3b1a1a;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      color: #fecaca;
+      font-size: 13px;
+      display: none;
+    }
+    .err.show { display: block; }
+    .hint { margin-top: 14px; font-size: 12px; color: var(--muted); }
+    code { font-size: 12px; background: #22263a; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Plexus</h1>
+    <p>Upload a <code>package.json</code> for the same report as the CLI: versions are resolved from the npm registry (no local <code>node_modules</code>).</p>
+    <div class="panel">
+      <label class="file">
+        <input type="file" id="file" accept=".json,application/json">
+        <span id="fileLabel">Choose a file…</span>
+      </label>
+      <div class="opts">
+        <label><input type="checkbox" id="optFix"> Include <code>--fix</code> resolution plan (extra npm requests)</label>
+        <label><input type="checkbox" id="optBundle"> BundlePhobia sizes (slower)</label>
+      </div>
+      <button type="button" id="run" disabled>Generate report</button>
+      <div class="err" id="err"></div>
+      <p class="hint">CLI equivalent: <code>npx plexus --html</code> from your project root (uses <code>node_modules</code> for disk sizes and transitive peer versions).</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var fileInput = document.getElementById('file');
+      var fileLabel = document.getElementById('fileLabel');
+      var runBtn = document.getElementById('run');
+      var errEl = document.getElementById('err');
+      var optFix = document.getElementById('optFix');
+      var optBundle = document.getElementById('optBundle');
+      var parsed = null;
+
+      function showErr(msg) {
+        errEl.textContent = msg;
+        errEl.classList.add('show');
+      }
+      function clearErr() {
+        errEl.classList.remove('show');
+      }
+
+      fileInput.addEventListener('change', function () {
+        clearErr();
+        parsed = null;
+        runBtn.disabled = true;
+        var f = fileInput.files && fileInput.files[0];
+        if (!f) {
+          fileLabel.textContent = 'Choose a file…';
+          return;
+        }
+        fileLabel.textContent = f.name;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            parsed = JSON.parse(reader.result);
+            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+              throw new Error('JSON must be a package.json object.');
+            }
+            runBtn.disabled = false;
+          } catch (e) {
+            showErr(e.message || 'Invalid JSON.');
+          }
+        };
+        reader.readAsText(f, 'UTF-8');
+      });
+
+      runBtn.addEventListener('click', function () {
+        if (!parsed) return;
+        clearErr();
+        runBtn.disabled = true;
+        runBtn.textContent = 'Analyzing…';
+        fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            packageJson: parsed,
+            fix: optFix.checked,
+            bundleSize: optBundle.checked,
+          }),
+        })
+          .then(function (res) {
+            if (!res.ok) {
+              var ct = res.headers.get('content-type') || '';
+              if (ct.indexOf('application/json') !== -1) {
+                return res.json().then(function (j) {
+                  throw new Error(j.error || res.statusText);
+                });
+              }
+              return res.text().then(function (t) {
+                throw new Error(t.slice(0, 200) || res.statusText);
+              });
+            }
+            return res.text();
+          })
+          .then(function (html) {
+            var w = window.open('', '_blank');
+            if (w) {
+              w.document.write(html);
+              w.document.close();
+            } else {
+              var blob = new Blob([html], { type: 'text/html' });
+              var url = URL.createObjectURL(blob);
+              window.location.href = url;
+            }
+          })
+          .catch(function (e) {
+            showErr(e.message || String(e));
+          })
+          .finally(function () {
+            runBtn.disabled = false;
+            runBtn.textContent = 'Generate report';
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
