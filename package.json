@@ -22,10 +22,14 @@
   "scripts": {
     "start": "node bin/plexus.js serve",
     "plexus": "node bin/plexus.js",
-    "plexus-peers": "node bin/plexus.js"
+    "plexus-peers": "node bin/plexus.js",
+    "build:css": "tailwindcss -i ./tailwind.source.css -o ./public/plexus.css --minify"
   },
   "dependencies": {
     "express": "^4.21.2",
     "semver": "^7.7.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
   }
 }
