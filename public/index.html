@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Optional: override API host (e.g. custom GitHub Pages domain). Empty = rules in script below. -->
+  <meta name="plexus-api-base" content="">
   <title>Plexus — package.json analysis</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -79,6 +81,17 @@
       var optBundle = document.getElementById('optBundle');
       var parsed = null;
 
+      function analyzeUrl() {
+        var meta = document.querySelector('meta[name="plexus-api-base"]');
+        if (meta && meta.content && meta.content.trim()) {
+          return meta.content.trim().replace(/\/$/, '') + '/api/analyze';
+        }
+        if (/\.github\.io$/i.test(location.hostname)) {
+          return 'https://plexus-4xdk.onrender.com/api/analyze';
+        }
+        return '/api/analyze';
+      }
+
       function showErr(msg) {
         errEl.textContent = msg;
         errEl.classList.remove('hidden');
@@ -117,7 +130,7 @@
         clearErr();
         runBtn.disabled = true;
         runBtn.textContent = 'Analyzing…';
-        fetch('/api/analyze', {
+        fetch(analyzeUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
