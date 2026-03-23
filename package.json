@@ -1,6 +1,6 @@
 {
   "name": "plexus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI and mini web UI for peer dependency analysis and BundlePhobia-style size hints",
   "license": "MIT",
   "bin": {
