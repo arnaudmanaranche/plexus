@@ -28,9 +28,16 @@
 <body class="box-border min-h-screen bg-plexus-base text-zinc-300 font-sans antialiased">
   <main class="min-h-screen flex flex-col items-center justify-center px-5 sm:px-8 py-16 sm:py-20 md:py-28">
     <div class="w-full max-w-4xl mx-auto text-center">
-      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white mb-5 md:mb-6">
-        Plexus
-      </h1>
+      <!-- Version: keep in sync with package.json -->
+      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-3 md:mb-4">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white">
+          Plexus
+        </h1>
+        <span class="inline-flex items-center rounded-lg border border-zinc-700/80 bg-plexus-code px-2.5 py-1 text-xs sm:text-sm font-mono font-medium text-zinc-400 tabular-nums shrink-0" translate="no">v0.2.0</span>
+      </div>
+      <p class="text-sm text-zinc-500 mb-5 md:mb-6">
+        <a href="https://github.com/arnaudmanaranche/plexus" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-white underline-offset-4 hover:underline transition-colors">GitHub</a>
+      </p>
       <p class="text-lg sm:text-xl md:text-2xl text-zinc-500 font-light leading-relaxed max-w-3xl mx-auto mb-14 md:mb-16">
         Upload a
         <code class="text-base sm:text-lg md:text-xl font-mono text-zinc-400 bg-plexus-code px-2 py-0.5 rounded-md">package.json</code>
@@ -60,8 +67,6 @@
           Generate report
         </button>
 
-        <div id="err" class="hidden mt-6 px-4 py-3 bg-red-950/60 border border-red-900/80 rounded-xl text-red-200/90 text-sm sm:text-base"></div>
-
         <p class="mt-8 text-center text-sm sm:text-base text-zinc-600 leading-relaxed">
           CLI:
           <code class="font-mono text-zinc-500 bg-plexus-code px-2 py-0.5 rounded-md">npx @arnaudmanaranche/plexus --html</code>
@@ -71,12 +76,23 @@
       </div>
     </div>
   </main>
+
+  <div id="plexus-toast" class="fixed top-6 right-4 z-50 max-w-md w-[calc(100vw_-_2rem)] opacity-0 -translate-y-2 pointer-events-none transition-all duration-300 ease-out" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="pointer-events-auto flex w-full items-stretch gap-1 rounded-xl border border-red-900/80 bg-red-950/95 text-red-100 shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+      <p id="plexus-toast-msg" class="flex-1 px-4 py-3 text-left text-sm sm:text-base leading-snug"></p>
+      <button type="button" id="plexus-toast-close" class="shrink-0 rounded-r-xl px-3 text-lg leading-none text-red-300/90 transition-colors hover:bg-red-900/60 hover:text-white" aria-label="Dismiss error">×</button>
+    </div>
+  </div>
+
   <script>
     (function () {
       var fileInput = document.getElementById('file');
       var fileLabel = document.getElementById('fileLabel');
       var runBtn = document.getElementById('run');
-      var errEl = document.getElementById('err');
+      var toastEl = document.getElementById('plexus-toast');
+      var toastMsg = document.getElementById('plexus-toast-msg');
+      var toastClose = document.getElementById('plexus-toast-close');
+      var toastTimer = null;
       var optFix = document.getElementById('optFix');
       var optBundle = document.getElementById('optBundle');
       var parsed = null;
@@ -92,16 +108,23 @@
         return '/api/analyze';
       }
 
-      function showErr(msg) {
-        errEl.textContent = msg;
-        errEl.classList.remove('hidden');
+      function showToast(msg) {
+        toastMsg.textContent = msg;
+        toastEl.classList.remove('opacity-0', '-translate-y-2');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(hideToast, 8000);
       }
-      function clearErr() {
-        errEl.classList.add('hidden');
+      function hideToast() {
+        toastEl.classList.add('opacity-0', '-translate-y-2');
+        if (toastTimer) {
+          clearTimeout(toastTimer);
+          toastTimer = null;
+        }
       }
+      toastClose.addEventListener('click', hideToast);
 
       fileInput.addEventListener('change', function () {
-        clearErr();
+        hideToast();
         parsed = null;
         runBtn.disabled = true;
         var f = fileInput.files && fileInput.files[0];
@@ -119,7 +142,7 @@
             }
             runBtn.disabled = false;
           } catch (e) {
-            showErr(e.message || 'Invalid JSON.');
+            showToast(e.message || 'Invalid JSON.');
           }
         };
         reader.readAsText(f, 'UTF-8');
@@ -127,7 +150,7 @@
 
       runBtn.addEventListener('click', function () {
         if (!parsed) return;
-        clearErr();
+        hideToast();
         runBtn.disabled = true;
         runBtn.textContent = 'Analyzing…';
         var pkgForApi = Object.assign({}, parsed);
@@ -168,7 +191,11 @@
             }
           })
           .catch(function (e) {
-            showErr(e.message || String(e));
+            var m = e.message || String(e);
+            if (m === 'Failed to fetch' || m.indexOf('NetworkError') !== -1) {
+              m = 'Could not reach the analysis server. Check your connection and try again.';
+            }
+            showToast(m);
           })
           .finally(function () {
             runBtn.disabled = false;
