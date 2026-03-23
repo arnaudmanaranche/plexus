@@ -63,7 +63,7 @@
         <div class="mt-8 flex flex-col gap-4">
           <label class="flex items-start gap-3 cursor-pointer text-zinc-500 text-base sm:text-lg select-none leading-snug">
             <input type="checkbox" id="optFix" class="mt-1 size-4 shrink-0 rounded border-zinc-700 bg-plexus-subtle text-zinc-200 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-0 focus:ring-offset-plexus-base accent-zinc-300">
-            <span>Include <code class="text-sm font-mono text-zinc-400 bg-plexus-code px-1.5 py-0.5 rounded">--fix</code> resolution plan (extra npm requests)</span>
+            <span>Include resolution plan (extra npm requests)</span>
           </label>
           <label class="flex items-start gap-3 cursor-pointer text-zinc-500 text-base sm:text-lg select-none leading-snug">
             <input type="checkbox" id="optBundle" class="mt-1 size-4 shrink-0 rounded border-zinc-700 bg-plexus-subtle text-zinc-200 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-0 focus:ring-offset-plexus-base accent-zinc-300">
@@ -75,6 +75,9 @@
           class="mt-10 w-full py-4 sm:py-5 rounded-xl bg-zinc-200 text-zinc-950 text-lg sm:text-xl font-semibold tracking-tight cursor-pointer transition-colors hover:bg-white disabled:opacity-40 disabled:hover:bg-zinc-200 disabled:cursor-not-allowed">
           Generate report
         </button>
+        <p class="mt-3 text-center text-xs sm:text-sm text-zinc-600 leading-snug">
+          Large manifests can take 20–60s (longer with <span class="text-zinc-500">BundlePhobia</span> enabled).
+        </p>
 
         <p class="mt-8 text-center text-sm sm:text-base text-zinc-600 leading-relaxed">
           CLI:
@@ -189,13 +192,17 @@
             return res.text();
           })
           .then(function (html) {
-            var w = window.open('', '_blank');
+            var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var w = window.open('about:blank', '_blank');
             if (w) {
-              w.document.write(html);
-              w.document.close();
+              w.location.href = url;
+              setTimeout(function () {
+                try {
+                  URL.revokeObjectURL(url);
+                } catch (e) {}
+              }, 60000);
             } else {
-              var blob = new Blob([html], { type: 'text/html' });
-              var url = URL.createObjectURL(blob);
               window.location.href = url;
             }
           })
