@@ -130,11 +130,14 @@
         clearErr();
         runBtn.disabled = true;
         runBtn.textContent = 'Analyzing…';
+        var pkgForApi = Object.assign({}, parsed);
+        delete pkgForApi.private;
+        delete pkgForApi.main;
         fetch(analyzeUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            packageJson: parsed,
+            packageJson: pkgForApi,
             fix: optFix.checked,
             bundleSize: optBundle.checked,
           }),
