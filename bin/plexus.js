@@ -10,8 +10,8 @@ function printHelp() {
 Plexus — peer dependencies, sizes, resolution hints
 
 Usage:
-  npx plexus [options]              Analyze package.json in current directory
-  npx plexus serve [options]        Start upload UI + API
+  npx @arnaudmanaranche/plexus [options]              Analyze package.json in current directory
+  npx @arnaudmanaranche/plexus serve [options]        Start upload UI + API
 
 Options:
   --dir, -C <path>     Project root (contains package.json and node_modules)
@@ -27,8 +27,8 @@ Serve:
   --port <n>           Port (default: 3847)
 
 Examples:
-  npx plexus --html --dir ./my-app
-  npx plexus serve --port 3847
+  npx @arnaudmanaranche/plexus --html --dir ./my-app
+  npx @arnaudmanaranche/plexus serve --port 3847
 `);
 }
 
@@ -96,7 +96,7 @@ function parseArgv(argv) {
       continue;
     }
     if (a.startsWith('-')) {
-      console.error(`Unknown option: ${a}\nRun npx plexus --help`);
+      console.error(`Unknown option: ${a}\nRun npx @arnaudmanaranche/plexus --help`);
       process.exitCode = 1;
       return null;
     }

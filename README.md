@@ -6,10 +6,10 @@ Requires **Node.js 18+** (uses the built-in `fetch` API).
 
 ## Install
 
-From npm (once published):
+From npm:
 
 ```bash
-npx plexus --help
+npx @arnaudmanaranche/plexus --help
 ```
 
 From a clone of this repo:
@@ -24,9 +24,9 @@ node bin/plexus.js --help
 Run from a project that has `package.json` (and usually `node_modules` after `npm install`):
 
 ```bash
-npx plexus                      # Terminal report for the current directory
-npx plexus --dir ./my-app       # Another project root
-npx plexus -f ./path/to/package.json
+npx @arnaudmanaranche/plexus                      # Terminal report for the current directory
+npx @arnaudmanaranche/plexus --dir ./my-app       # Another project root
+npx @arnaudmanaranche/plexus -f ./path/to/package.json
 ```
 
 | Option | Description |
@@ -41,8 +41,8 @@ npx plexus -f ./path/to/package.json
 Examples:
 
 ```bash
-npx plexus --html
-npx plexus --html --fix --bundlesize --dir ./my-app
+npx @arnaudmanaranche/plexus --html
+npx @arnaudmanaranche/plexus --html --fix --bundlesize --dir ./my-app
 ```
 
 ## Web UI (`serve`)
@@ -50,7 +50,7 @@ npx plexus --html --fix --bundlesize --dir ./my-app
 Starts a local server with a page to **upload** a `package.json`. The report is generated from the **npm registry** (semver resolution for each direct dependency). There is **no** local `node_modules`, so disk sizes are absent and only dependencies declared in the manifest contribute resolved versions for peers.
 
 ```bash
-npx plexus serve
+npx @arnaudmanaranche/plexus serve
 # http://127.0.0.1:3847  (override with --port)
 ```
 
