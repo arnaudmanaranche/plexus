@@ -4,94 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plexus — package.json analysis</title>
-  <style>
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --border: #2e3248;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --cyan: #22d3ee;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, sans-serif;
-      font-size: 15px;
-      line-height: 1.5;
-      padding: 32px 24px 48px;
-    }
-    .wrap { max-width: 520px; margin: 0 auto; }
-    h1 { font-size: 1.35rem; font-weight: 700; color: var(--cyan); margin: 0 0 8px; }
-    p { color: var(--muted); margin: 0 0 20px; }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-    label.file {
-      display: block;
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      color: var(--muted);
-      transition: border-color .15s, color .15s;
-    }
-    label.file:hover { border-color: var(--cyan); color: var(--text); }
-    input[type="file"] { display: none; }
-    .opts { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
-    .opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--muted); font-size: 14px; }
-    button {
-      margin-top: 18px;
-      width: 100%;
-      padding: 12px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #0e7490;
-      color: #fff;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    button:hover { background: #0891b2; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .err {
-      margin-top: 12px;
-      padding: 10px 12px;
-      background: #3b1a1a;
-      border: 1px solid #7f1d1d;
-      border-radius: 8px;
-      color: #fecaca;
-      font-size: 13px;
-      display: none;
-    }
-    .err.show { display: block; }
-    .hint { margin-top: 14px; font-size: 12px; color: var(--muted); }
-    code { font-size: 12px; background: #22263a; padding: 2px 6px; border-radius: 4px; }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            plexus: {
+              bg: '#0f1117',
+              surface: '#1a1d27',
+              border: '#2e3248',
+              code: '#22263a',
+            },
+          },
+        },
+      },
+    };
+  </script>
 </head>
-<body>
-  <div class="wrap">
-    <h1>Plexus</h1>
-    <p>Upload a <code>package.json</code> for the same report as the CLI: versions are resolved from the npm registry (no local <code>node_modules</code>).</p>
-    <div class="panel">
-      <label class="file">
-        <input type="file" id="file" accept=".json,application/json">
+<body class="box-border min-h-screen bg-plexus-bg text-slate-200 font-sans text-[15px] leading-relaxed antialiased px-6 py-8 pb-12">
+  <div class="max-w-[520px] mx-auto">
+    <h1 class="text-xl font-bold text-cyan-400 mb-2">Plexus</h1>
+    <p class="text-slate-500 mb-5">
+      Upload a <code class="text-xs bg-plexus-code px-1.5 py-0.5 rounded text-slate-300 font-mono">package.json</code>
+      for the same report as the CLI: versions are resolved from the npm registry (no local
+      <code class="text-xs bg-plexus-code px-1.5 py-0.5 rounded text-slate-300 font-mono">node_modules</code>).
+    </p>
+    <div class="bg-plexus-surface border border-plexus-border rounded-xl p-5">
+      <label class="block border border-dashed border-plexus-border rounded-lg py-6 px-4 text-center cursor-pointer text-slate-500 transition-colors duration-150 hover:border-cyan-400 hover:text-slate-200">
+        <input type="file" id="file" class="hidden" accept=".json,application/json">
         <span id="fileLabel">Choose a file…</span>
       </label>
-      <div class="opts">
-        <label><input type="checkbox" id="optFix"> Include <code>--fix</code> resolution plan (extra npm requests)</label>
-        <label><input type="checkbox" id="optBundle"> BundlePhobia sizes (slower)</label>
+      <div class="mt-4 flex flex-col gap-2.5">
+        <label class="flex items-center gap-2 cursor-pointer text-slate-500 text-sm select-none">
+          <input type="checkbox" id="optFix" class="rounded border-plexus-border bg-plexus-surface text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-plexus-bg">
+          Include <code class="text-xs bg-plexus-code px-1.5 py-0.5 rounded font-mono text-slate-400">--fix</code> resolution plan (extra npm requests)
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-slate-500 text-sm select-none">
+          <input type="checkbox" id="optBundle" class="rounded border-plexus-border bg-plexus-surface text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-plexus-bg">
+          BundlePhobia sizes (slower)
+        </label>
       </div>
-      <button type="button" id="run" disabled>Generate report</button>
-      <div class="err" id="err"></div>
-      <p class="hint">CLI equivalent: <code>npx plexus --html</code> from your project root (uses <code>node_modules</code> for disk sizes and transitive peer versions).</p>
+      <button type="button" id="run" disabled
+        class="mt-4 w-full py-3 px-4 rounded-lg bg-cyan-700 hover:bg-cyan-600 disabled:hover:bg-cyan-700 text-white font-semibold text-[15px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        Generate report
+      </button>
+      <div id="err" class="hidden mt-3 px-3 py-2.5 bg-red-950/80 border border-red-900 rounded-lg text-red-200 text-sm"></div>
+      <p class="mt-3.5 text-xs text-slate-500">
+        CLI equivalent:
+        <code class="text-xs bg-plexus-code px-1.5 py-0.5 rounded font-mono text-slate-400">npx plexus --html</code>
+        from your project root (uses
+        <code class="text-xs bg-plexus-code px-1.5 py-0.5 rounded font-mono text-slate-400">node_modules</code>
+        for disk sizes and transitive peer versions).
+      </p>
     </div>
   </div>
   <script>
@@ -106,10 +71,10 @@
 
       function showErr(msg) {
         errEl.textContent = msg;
-        errEl.classList.add('show');
+        errEl.classList.remove('hidden');
       }
       function clearErr() {
-        errEl.classList.remove('show');
+        errEl.classList.add('hidden');
       }
 
       fileInput.addEventListener('change', function () {
