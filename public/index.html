@@ -92,6 +92,16 @@
       var optBundle = document.getElementById('optBundle');
       var parsed = null;
 
+      function directDepCount(pkg) {
+        if (!pkg || typeof pkg !== 'object') return 0;
+        var d = pkg.dependencies;
+        var dev = pkg.devDependencies;
+        var n = 0;
+        if (d && typeof d === 'object' && !Array.isArray(d)) n += Object.keys(d).length;
+        if (dev && typeof dev === 'object' && !Array.isArray(dev)) n += Object.keys(dev).length;
+        return n;
+      }
+
       function analyzeUrl() {
         var meta = document.querySelector('meta[name="plexus-api-base"]');
         if (meta && meta.content && meta.content.trim()) {
@@ -135,6 +145,14 @@
             if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
               throw new Error('JSON must be a package.json object.');
             }
+            if (directDepCount(parsed) === 0) {
+              showToast(
+                'This package.json has no dependencies or devDependencies — nothing to analyze.',
+              );
+              parsed = null;
+              runBtn.disabled = true;
+              return;
+            }
             runBtn.disabled = false;
           } catch (e) {
             showToast(e.message || 'Invalid JSON.');
@@ -145,6 +163,12 @@
 
       runBtn.addEventListener('click', function () {
         if (!parsed) return;
+        if (directDepCount(parsed) === 0) {
+          showToast(
+            'This package.json has no dependencies or devDependencies — nothing to analyze.',
+          );
+          return;
+        }
         hideToast();
         runBtn.disabled = true;
         runBtn.textContent = 'Analyzing…';
