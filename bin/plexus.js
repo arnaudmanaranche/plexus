@@ -2,6 +2,7 @@
 'use strict';
 
 const path = require('path');
+const { color } = require('../lib/ansi');
 const { runFilesystemAnalysis } = require('../lib/engine');
 const { startServer } = require('../lib/server');
 
@@ -123,6 +124,15 @@ async function main() {
   if (parsed.command === 'serve') {
     startServer({ port: parsed.port });
     return;
+  }
+
+  if (parsed.flags.bundleSize && !parsed.flags.html) {
+    console.error(
+      color(
+        'Note: --bundlesize only applies with --html (BundlePhobia gzip sizes in the report file). Terminal output is unchanged — use e.g. --html --bundlesize.\n',
+        'yellow',
+      ),
+    );
   }
 
   await runFilesystemAnalysis({ rootDir: parsed.rootDir, flags: parsed.flags });
