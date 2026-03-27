@@ -21,6 +21,7 @@
   },
   "scripts": {
     "start": "node bin/plexus.js serve",
+    "start:dev": "nodemon -q --watch lib --watch bin --watch public --ext js,cjs,mjs,html,css --delay 200ms bin/plexus.js serve",
     "plexus": "node bin/plexus.js",
     "plexus-peers": "node bin/plexus.js",
     "build:css": "tailwindcss -i ./tailwind.source.css -o ./public/plexus.css --minify"
@@ -30,6 +31,7 @@
     "semver": "^7.7.1"
   },
   "devDependencies": {
+    "nodemon": "^3.1.11",
     "tailwindcss": "^3.4.17"
   }
 }
