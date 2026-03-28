@@ -1,6 +1,6 @@
 # Plexus
 
-CLI and a small web UI to inspect **direct dependencies** from a `package.json`: peer dependency ranges vs what is installed, optional **BundlePhobia**-style bundle size hints, and a **`--fix`** mode that queries npm for upgrade and cascade notes.
+CLI and a small web UI to inspect **direct dependencies** from a `package.json`: peer dependency ranges vs what is installed, optional **[bundlejs.com](https://bundlejs.com/)** bundled gzip hints (esbuild), and a **`--fix`** mode that queries npm for upgrade and cascade notes.
 
 Requires **Node.js 18+** (uses the built-in `fetch` API).
 
@@ -37,7 +37,7 @@ npx plexus-peers -f ./path/to/package.json
 | `--out <path>` | HTML output path (with `--html`) |
 | `--conflicts-only` | Only list packages that have peer issues |
 | `--fix` | Call `npm` for latest metadata and print resolution hints (chatty; avoid on CI if logs matter) |
-| `--bundlesize` | With `--html`, query [BundlePhobia](https://bundlephobia.com/) per direct dependency (slow, rate limits may apply) |
+| `--bundlesize` | With `--html`, query [bundlejs.com](https://bundlejs.com/) per direct dependency (slow) |
 | `--pkg <name>` | Focus on one direct dependency and related peer rows |
 
 Examples:

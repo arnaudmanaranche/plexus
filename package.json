@@ -1,7 +1,7 @@
 {
   "name": "plexus-peers",
   "version": "0.2.1",
-  "description": "Plexus — CLI and mini web UI for peer dependency analysis and BundlePhobia-style size hints",
+  "description": "Plexus — CLI and mini web UI for peer dependency analysis",
   "license": "MIT",
   "repository": {
     "type": "git",

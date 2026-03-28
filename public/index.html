@@ -51,7 +51,7 @@
             </label>
             <label class="flex items-start gap-3 cursor-pointer text-zinc-500 text-base sm:text-lg select-none leading-snug">
               <input type="checkbox" id="optBundle" class="mt-1 size-4 shrink-0 rounded border-zinc-700 bg-plexus-subtle text-zinc-200 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-0 focus:ring-offset-plexus-base accent-zinc-300">
-              <span>BundlePhobia sizes (slower)</span>
+              <span>Bundle size via bundlejs.com (slower)</span>
             </label>
           </div>
 
@@ -60,7 +60,7 @@
             Generate report
           </button>
           <p class="mt-3 text-center text-xs sm:text-sm text-zinc-600 leading-snug">
-            Large manifests can take 20–60s (longer with <span class="text-zinc-500">BundlePhobia</span> enabled).
+            Large manifests can take 20–90s (longer with <span class="text-zinc-500">bundlejs.com</span> size checks).
           </p>
 
           <p class="mt-8 text-center text-sm sm:text-base text-zinc-600 leading-relaxed">
@@ -295,7 +295,34 @@
         }
 
         var step = 0;
+        var serverWaitShown = false;
         paint(step);
+
+        function showServerWaitingUi() {
+          if (serverWaitShown) return;
+          serverWaitShown = true;
+          title.textContent = 'Finishing report on server…';
+          countEl.className = 'mt-4 text-center text-xs sm:text-sm text-zinc-500 leading-relaxed max-w-lg mx-auto';
+          countEl.textContent =
+            'The dependency list above is only a visual rhythm — work continues until /api/analyze responds. Bundle size mode can take several minutes.';
+          clearRow(rowTop);
+          clearRow(rowMid);
+          clearRow(rowBot);
+          rowTop.className =
+            'plexus-pill-row-top flex min-h-[1.35rem] w-full max-w-[18rem] items-center justify-center opacity-0 pointer-events-none';
+          rowBot.className =
+            'plexus-pill-row-bot flex min-h-[1.35rem] w-full max-w-[18rem] items-center justify-center opacity-0 pointer-events-none';
+          rowMid.className =
+            'plexus-pill-row-mid flex min-h-[2.5rem] w-full max-w-[22rem] items-center justify-center gap-2 px-3 text-sm text-zinc-300';
+          var dot = document.createElement('span');
+          dot.className = 'shrink-0 text-amber-400 animate-pulse';
+          dot.textContent = '●';
+          dot.setAttribute('aria-hidden', 'true');
+          var msg = document.createElement('span');
+          msg.textContent = 'Waiting for response…';
+          rowMid.appendChild(dot);
+          rowMid.appendChild(msg);
+        }
 
         function flushRemaining() {
           stopProgressSimulation();
@@ -303,15 +330,15 @@
         }
 
         if (n > 0) {
-          /* Pacing decoupled from API; flush skips to end when ready. */
+          /* Advance through dependency names only; never imply “all done” until the POST returns. */
           var intervalMs = Math.min(2800, Math.max(950, Math.floor(42000 / n)));
           progressSimTimer = setInterval(function () {
-            step++;
-            if (step <= n) {
+            if (step < n - 1) {
+              step++;
               paint(step);
-            }
-            if (step >= n) {
+            } else {
               stopProgressSimulation();
+              showServerWaitingUi();
             }
           }, intervalMs);
         }

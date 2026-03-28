@@ -21,7 +21,7 @@ Options:
   --out <path>         HTML output path (with --html)
   --conflicts-only     Terminal: only packages with peer issues
   --fix                Query npm for upgrade / cascade hints (noisy on CI)
-  --bundlesize         With --html: fetch gzip sizes from BundlePhobia (slow)
+  --bundlesize         With --html: fetch bundled gzip sizes from bundlejs.com (slow)
   --pkg <name>         Focus on one direct dependency and its peers
 
 Serve:
@@ -129,7 +129,7 @@ async function main() {
   if (parsed.flags.bundleSize && !parsed.flags.html) {
     console.error(
       color(
-        'Note: --bundlesize only applies with --html (BundlePhobia gzip sizes in the report file). Terminal output is unchanged — use e.g. --html --bundlesize.\n',
+        'Note: --bundlesize only applies with --html (bundlejs.com gzip sizes in the report file). Terminal output is unchanged — use e.g. --html --bundlesize.\n',
         'yellow',
       ),
     );
