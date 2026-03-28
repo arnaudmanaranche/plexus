@@ -1,6 +1,6 @@
 {
   "name": "plexus-peers",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Plexus — CLI and mini web UI for peer dependency analysis",
   "license": "MIT",
   "repository": {
